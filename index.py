@@ -1,5 +1,6 @@
 import pandas as pd
 from random import randint
+import random
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score
@@ -48,6 +49,7 @@ def selection(population):
 
 def crossover(population):
     new_population = []
+    random.shuffle(population)
     for i in range(0, len(population) - 1, 2):
         chromosome1 = population[i]
         chromosome2 = population[i + 1]
@@ -113,8 +115,8 @@ def printPopulation(population):
     print("===============================================")
 
 #---------------------------- Genetic Algorithm ------------------------------------#
-POPULATION_SIZE = 100
-CHROMOSOME_SIZE = 20
+POPULATION_SIZE = 4
+CHROMOSOME_SIZE = 4
 
 population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 

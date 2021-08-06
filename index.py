@@ -7,10 +7,30 @@ from sklearn.metrics import r2_score
 def get_data(file_name):
     return pd.read_csv(file_name)
 
-def generatePopulation():
-    return 0
-    # TO DO
-    # generate initial population
+class Chromosome:
+    def __init__(self, chromosome_size):
+        self.chromosome_size = chromosome_size
+        self.chromosome = []
+        self.generate_chromosome()
+        self.generate_fitness()
+
+    def generate_chromosome(self):
+        for i in range(self.chromosome_size):
+            self.chromosome.append(randint(0, 39))
+
+    def generate_fitness(self):
+        self.fitness = getFitness(self.chromosome)
+
+    def get_chromosome(self):
+        return self.chromosome
+
+
+def generatePopulation(population_size, chromosome_size):
+    population = []
+    for i in range(population_size):
+        population.append(Chromosome(chromosome_size))
+
+    return population
 
 def selection():
     return 0
@@ -22,24 +42,43 @@ def crossover():
     # TO DO
     # receives a couple return a new individual
 
-def fitness():
-    return 0
-    # TO DO
-    # receives a n indidividual and give it a fitness score
+def knnFit(x_train, y_train):
+    knn = KNeighborsRegressor(n_neighbors=3)
+    knn = knn.fit(x_train, y_train.values.ravel())
+
+    return knn
+
+def getFitness(chromosome):
+    data = get_data('data/AG.csv')
+
+    x_data = data.iloc[:, :-1]
+    y_data = data.iloc[:, -1]
+
+    df = x_data.iloc[:, chromosome]
+    x_train, x_test, y_train, y_test = train_test_split(df, y_data, test_size=0.3, random_state=42)
+
+    knn = knnFit(x_train, y_train)
+
+    y_predict = knn.predict(x_test)
+
+    return r2_score(y_test, y_predict)
 
 #---------------------------- Genetic Algorithm ------------------------------------#
+POPULATION_SIZE = 100
+CHROMOSOME_SIZE = 20
 
-#Initialize population
-population = generatePopulation()
+population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
-while(melhorSolucao):
+generation = 0
 
-    #Avaliate individuals
-    bestIndividuals = selection(population)
+# while(melhorSolucao):
 
-    #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
-    #No método crossover eu gero um lista de novos indivíduos.
-    newPopulation = crossover(bestIndividuals)
+#     #Avaliate individuals
+#     bestIndividuals = selection(population)
 
-    #Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
-    population = updatePopulation(population, newPopulation)
+#     #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
+#     #No método crossover eu gero um lista de novos indivíduos.
+#     newPopulation = crossover(bestIndividuals)
+
+#     #Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
+#     population = updatePopulation(population, newPopulation)

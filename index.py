@@ -1,4 +1,8 @@
 import pandas as pd
+from random import randint
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import r2_score
 
 def get_data(file_name):
     return pd.read_csv(file_name)

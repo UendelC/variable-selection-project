@@ -32,15 +32,41 @@ def generatePopulation(population_size, chromosome_size):
 
     return population
 
-def selection():
-    return 0
-    # TO DO
-    # select the best individuals among population
+def selection(population):
+    for individual in population:
+        if individual.fitness < 0.5:
+            population.remove(individual)
 
-def crossover():
-    return 0
-    # TO DO
-    # receives a couple return a new individual
+    return population[:int(len(population) / 2)]
+
+def crossover(population):
+    new_population = []
+    for i in range(0, len(population) - 1, 2):
+        chromosome1 = population[i]
+        chromosome2 = population[i + 1]
+        new_chromosome = []
+        for i in range(len(chromosome1.get_chromosome())):
+            if randint(0, 1):
+                new_chromosome.append(chromosome1.get_chromosome()[i])
+            else:
+                new_chromosome.append(chromosome2.get_chromosome()[i])
+                new_population.append(Chromosome(len(new_chromosome)))
+                new_population[-1].chromosome = new_chromosome
+    return new_population
+
+def mutation(population):
+    for individual in population:
+        if randint(0, 100) < 5:
+            individual.chromosome[randint(0, CHROMOSOME_SIZE - 1)] = randint(0, 39)
+            individual.generate_fitness()
+    return population
+
+def getBestIndividual(population):
+    best_individual = population[0]
+    for individual in population:
+        if individual.fitness > best_individual.fitness:
+            best_individual = individual
+    return best_individual
 
 def knnFit(x_train, y_train):
     knn = KNeighborsRegressor(n_neighbors=3)
@@ -64,21 +90,32 @@ def getFitness(chromosome):
     return r2_score(y_test, y_predict)
 
 #---------------------------- Genetic Algorithm ------------------------------------#
-POPULATION_SIZE = 100
+POPULATION_SIZE = 10
 CHROMOSOME_SIZE = 20
 
 population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
 generation = 0
+flag = False
 
-# while(melhorSolucao):
+while(generation < 100 or flag):
 
-#     #Avaliate individuals
-#     bestIndividuals = selection(population)
+    #Avaliate individuals
+    bestIndividuals = selection(population)
 
-#     #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
-#     #No método crossover eu gero um lista de novos indivíduos.
-#     newPopulation = crossover(bestIndividuals)
+    #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
+    #No método crossover eu gero um lista de novos indivíduos.
+    nextPopulation = crossover(bestIndividuals)
 
-#     #Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
-#     population = updatePopulation(population, newPopulation)
+    mutatedPopulation = mutation(nextPopulation)
+    bestIndividual = getBestIndividual(mutatedPopulation)
+
+    if bestIndividual.fitness > 0.95:
+        # print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))
+        flag = True
+        break
+
+    #Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
+    generation += 1
+
+print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))

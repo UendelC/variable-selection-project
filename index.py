@@ -50,14 +50,21 @@ def crossover(population):
         chromosome1 = population[i]
         chromosome2 = population[i + 1]
         new_chromosome = []
+        new_chromosome2 = []
         for i in range(len(chromosome1.get_chromosome())):
             if randint(0, 1):
                 new_chromosome.append(chromosome1.get_chromosome()[i])
+                new_chromosome2.append(chromosome2.get_chromosome()[i])
             else:
                 new_chromosome.append(chromosome2.get_chromosome()[i])
+                new_chromosome2.append(chromosome1.get_chromosome()[i])
 
-            new_population.append(Chromosome(len(new_chromosome)))
-            new_population[-1].chromosome = new_chromosome
+        new_population.append(Chromosome(len(new_chromosome)))
+        new_population[-1].chromosome = new_chromosome
+        new_population[-1].generate_fitness()
+        new_population.append(Chromosome(len(new_chromosome2)))
+        new_population[-1].chromosome = new_chromosome2
+        new_population[-1].generate_fitness()
     return new_population
 
 def mutation(population):
@@ -106,8 +113,8 @@ def printPopulation(population):
     print("===============================================")
 
 #---------------------------- Genetic Algorithm ------------------------------------#
-POPULATION_SIZE = 10
-CHROMOSOME_SIZE = 20
+POPULATION_SIZE = 4
+CHROMOSOME_SIZE = 2
 
 population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
@@ -121,6 +128,8 @@ while(generation < 100 or flag):
     #Avaliate individuals
     bestIndividuals = selection(population)
 
+    newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
+
     if (len(bestIndividuals) > 0):
         # printPopulation(bestIndividuals)
         print("best individuals size " + str(len(bestIndividuals)))
@@ -130,7 +139,7 @@ while(generation < 100 or flag):
 
     #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
     #No método crossover eu gero um lista de novos indivíduos.
-    nextPopulation = crossover(bestIndividuals)
+    nextPopulation = crossover(newPopulation)
 
     if (len(nextPopulation) > 0):
         # printPopulation(nextPopulation)

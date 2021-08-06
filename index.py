@@ -7,6 +7,8 @@ from sklearn.metrics import r2_score
 def get_data(file_name):
     return pd.read_csv(file_name)
 
+data = get_data('data/AG.csv')
+
 class Chromosome:
     def __init__(self, chromosome_size):
         self.chromosome_size = chromosome_size
@@ -91,8 +93,6 @@ def knnFit(x_train, y_train):
     return knn
 
 def getFitness(chromosome):
-    data = get_data('data/AG.csv')
-
     x_data = data.iloc[:, :-1]
     y_data = data.iloc[:, -1]
 
@@ -113,8 +113,8 @@ def printPopulation(population):
     print("===============================================")
 
 #---------------------------- Genetic Algorithm ------------------------------------#
-POPULATION_SIZE = 4
-CHROMOSOME_SIZE = 2
+POPULATION_SIZE = 100
+CHROMOSOME_SIZE = 20
 
 population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 

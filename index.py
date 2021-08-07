@@ -5,10 +5,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score
 
+
 def get_data(file_name):
     return pd.read_csv(file_name)
 
+
 data = get_data('data/AG.csv')
+
 
 class Chromosome:
     def __init__(self, chromosome_size):
@@ -18,8 +21,7 @@ class Chromosome:
         self.generate_fitness()
 
     def generate_chromosome(self):
-        for i in range(self.chromosome_size):
-            self.chromosome.append(randint(0, 39))
+        self.chromosome = random.sample(range(0, 40), 40)
 
     def generate_fitness(self):
         self.fitness = getFitness(self.chromosome)
@@ -35,6 +37,7 @@ def generatePopulation(population_size, chromosome_size):
 
     return population
 
+
 def getMeanFitness(population):
     sum = 0
     for individual in population:
@@ -42,10 +45,12 @@ def getMeanFitness(population):
 
     return sum / len(population)
 
+
 def selection(population):
     population.sort(key=lambda x: x.fitness, reverse=True)
 
     return population[:int(len(population) * 0.5)]
+
 
 def crossover(population):
     new_population = []
@@ -71,12 +76,14 @@ def crossover(population):
         new_population[-1].generate_fitness()
     return new_population
 
+
 def mutation(population):
     for individual in population:
         if randint(0, 100) < 5:
             individual.chromosome[randint(0, CHROMOSOME_SIZE - 1)] = randint(0, 39)
             individual.generate_fitness()
     return population
+
 
 def getBestIndividual(population):
     if (population.__len__() > 0):
@@ -88,11 +95,13 @@ def getBestIndividual(population):
     else:
         print("No individual in population")
 
+
 def knnFit(x_train, y_train):
     knn = KNeighborsRegressor(n_neighbors=3)
     knn = knn.fit(x_train, y_train.values.ravel())
 
     return knn
+
 
 def getFitness(chromosome):
     x_data = data.iloc[:, :-1]
@@ -107,6 +116,7 @@ def getFitness(chromosome):
 
     return r2_score(y_test, y_predict)
 
+
 def printPopulation(population):
     print("Population: ====================================")
     for individual in population:
@@ -114,20 +124,23 @@ def printPopulation(population):
 
     print("===============================================")
 
-#---------------------------- Genetic Algorithm ------------------------------------#
+
+# ---------------------------- Genetic Algorithm ------------------------------------#
 POPULATION_SIZE = 4
 CHROMOSOME_SIZE = 4
 
 population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
+
+print("Chromosome: " + str(population.__getitem__(0).get_chromosome()))
 
 generation = 0
 flag = False
 
 print("population size " + str(len(population)))
 
-while(generation < 100 or flag):
+while (generation < 100 or flag):
 
-    #Avaliate individuals
+    # Avaliate individuals
     bestIndividuals = selection(population)
 
     newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
@@ -138,9 +151,8 @@ while(generation < 100 or flag):
     else:
         print("No individual in best population")
 
-
-    #Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
-    #No método crossover eu gero um lista de novos indivíduos.
+    # Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
+    # No método crossover eu gero um lista de novos indivíduos.
     nextPopulation = crossover(newPopulation)
 
     if (len(nextPopulation) > 0):
@@ -164,8 +176,9 @@ while(generation < 100 or flag):
         flag = True
         break
 
-    #Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
+    # Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
     generation += 1
     population = mutatedPopulation
 
-print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))
+print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
+    bestIndividual.fitness))

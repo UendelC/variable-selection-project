@@ -5,13 +5,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score
 
-
 def get_data(file_name):
     return pd.read_csv(file_name)
 
-
 data = get_data('data/AG.csv')
-
 
 class Chromosome:
     def __init__(self, chromosome_size):
@@ -27,6 +24,7 @@ class Chromosome:
     def generate_fitness(self):
         true_indexes_list = [index for index, state in enumerate(self.chromosome) if state == 1]
         self.fitness = getFitness(true_indexes_list)
+        self.numberVariables = len(true_indexes_list)
 
     def get_chromosome(self):
         return self.chromosome
@@ -85,22 +83,15 @@ def crossover(population):
 
 def mutation(population):
     for individual in population:
-        is_invidual_changed = False
-
         for index, bit in enumerate(individual.get_chromosome()):
-            if randint(1, 100) < 6:
+            if randint(0, 99) < 1:
                 individual.chromosome[index] = 1 if bit == 0 else 0
-                is_invidual_changed = True
-
-        if is_invidual_changed:
-            individual.generate_fitness()
+                individual.generate_fitness()
 
     return population
 
 
 def getBestIndividual(population):
-    # if (population.__len__() > 0):
-
     best = population[0]
 
     for individual in population:
@@ -108,10 +99,6 @@ def getBestIndividual(population):
             best = individual
 
     return best
-
-    # else:
-    #     print("No individual in population")
-
 
 def knnFit(x_train, y_train):
     knn = KNeighborsRegressor(n_neighbors=3)
@@ -144,71 +131,53 @@ def printPopulation(population):
 
 # ---------------------------- Genetic Algorithm ------------------------------------#
 def geneticAlgorithm():
-    POPULATION_SIZE = 100
+    POPULATION_SIZE = 20
     CHROMOSOME_SIZE = 40
     MAX_GENERATIONS = 100
 
     population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
-    print("Chromosome: " + str(population.__getitem__(0).get_chromosome()))
-
-    generation = 0
+    generation = 1
 
     print("population size " + str(len(population)))
 
-    while (generation < MAX_GENERATIONS):
+    while (True):
 
         # Avaliate individuals
         bestIndividuals = selection(population)
 
-        # print("Best individual: " + str(len(bestIndividuals)))
+        # print("Best individuals size: " + str(len(bestIndividuals)))
 
         newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
 
-        # printPopulation(newPopulation)
+        # print("New POpulation size: " + str(len(newPopulation)))
 
-        # if (len(bestIndividuals) > 0):
-        #     # printPopulation(bestIndividuals)
-        #     print("best individuals size " + str(len(bestIndividuals)))
-        # else:
-        #     print("No individual in best population")
-
-        # Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
-        # No método crossover eu gero um lista de novos indivíduos.
         nextPopulation = crossover(newPopulation)
 
-        # printPopulation(nextPopulation)
-
-        # if (len(nextPopulation) > 0):
-        #     # printPopulation(nextPopulation)
-        #     print("next population size " + str(len(nextPopulation)))
-        # else:
-        #     print("No individual in next population")
+        # print("Next population size: " + str(len(nextPopulation)))
 
         mutatedPopulation = mutation(nextPopulation)
 
-        # printPopulation(mutatedPopulation)
-
-        # if (len(mutatedPopulation) > 0):
-        #     # printPopulation(mutatedPopulation)
-        #     print("mutated population size " + str(len(mutatedPopulation)))
-        # else:
-        #     print("No individual in mutated population")
+        # print("Mutated population size: " + str(len(mutatedPopulation)))
 
         bestIndividual = getBestIndividual(mutatedPopulation)
 
-        print("\n\nGeneration: " + str(generation + 1))
-        printPopulation(mutatedPopulation)
+        print("\n\nGeneration: " + str(generation) + "\nbest individual: "
+            + str(bestIndividual.get_chromosome())
+            + "\nfitness: "
+            + str(bestIndividual.fitness)
+            + "\nNumber of variables: " + str(bestIndividual.numberVariables)
+        )
 
-        if bestIndividual.fitness > 0.95:
-            # print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))
-            break
-
-        # Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
-
-        generation += 1
         population = mutatedPopulation
 
+        if bestIndividual.fitness > 0.95:
+            break
+
+        generation += 1
+
+
+    print("\n=================== END =====================\n")
     print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
         bestIndividual.fitness))
 

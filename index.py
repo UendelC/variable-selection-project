@@ -21,10 +21,12 @@ class Chromosome:
         self.generate_fitness()
 
     def generate_chromosome(self):
-        self.chromosome = random.sample(range(0, 40), 40)
+        for i in range(self.chromosome_size):
+            self.chromosome.append(randint(0, 1))
 
     def generate_fitness(self):
-        self.fitness = getFitness(self.chromosome)
+        true_indexes_list = [index for index, state in enumerate(self.chromosome) if state == 1]
+        self.fitness = getFitness(true_indexes_list)
 
     def get_chromosome(self):
         return self.chromosome
@@ -57,10 +59,12 @@ def crossover(population):
     random.shuffle(population)
     for i in range(0, len(population) - 1, 2):
         chromosome1 = population[i]
+        chromo1_len = len(chromosome1.get_chromosome())
         chromosome2 = population[i + 1]
         new_chromosome = []
         new_chromosome2 = []
-        for i in range(len(chromosome1.get_chromosome())):
+
+        for i in range(chromo1_len):
             if randint(0, 1):
                 new_chromosome.append(chromosome1.get_chromosome()[i])
                 new_chromosome2.append(chromosome2.get_chromosome()[i])
@@ -71,29 +75,42 @@ def crossover(population):
         new_population.append(Chromosome(len(new_chromosome)))
         new_population[-1].chromosome = new_chromosome
         new_population[-1].generate_fitness()
+
         new_population.append(Chromosome(len(new_chromosome2)))
         new_population[-1].chromosome = new_chromosome2
         new_population[-1].generate_fitness()
+
     return new_population
 
 
 def mutation(population):
     for individual in population:
-        if randint(0, 100) < 5:
-            individual.chromosome[randint(0, CHROMOSOME_SIZE - 1)] = randint(0, 39)
+        is_invidual_changed = False
+
+        for index, bit in enumerate(individual.get_chromosome()):
+            if randint(1, 100) < 6:
+                individual.chromosome[index] = 1 if bit == 0 else 0
+                is_invidual_changed = True
+
+        if is_invidual_changed:
             individual.generate_fitness()
+
     return population
 
 
 def getBestIndividual(population):
-    if (population.__len__() > 0):
-        best = population[0]
-        for individual in population:
-            if individual.fitness > best.fitness:
-                best = individual
-        return best
-    else:
-        print("No individual in population")
+    # if (population.__len__() > 0):
+
+    best = population[0]
+
+    for individual in population:
+        if individual.fitness > best.fitness:
+            best = individual
+
+    return best
+
+    # else:
+    #     print("No individual in population")
 
 
 def knnFit(x_train, y_train):
@@ -118,7 +135,7 @@ def getFitness(chromosome):
 
 
 def printPopulation(population):
-    print("Population: ====================================")
+    print("\nPopulation: \n====================================")
     for individual in population:
         print(individual.get_chromosome(), individual.fitness)
 
@@ -126,59 +143,74 @@ def printPopulation(population):
 
 
 # ---------------------------- Genetic Algorithm ------------------------------------#
-POPULATION_SIZE = 4
-CHROMOSOME_SIZE = 4
+def geneticAlgorithm():
+    POPULATION_SIZE = 100
+    CHROMOSOME_SIZE = 40
+    MAX_GENERATIONS = 100
 
-population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
+    population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
-print("Chromosome: " + str(population.__getitem__(0).get_chromosome()))
+    print("Chromosome: " + str(population.__getitem__(0).get_chromosome()))
 
-generation = 0
-flag = False
+    generation = 0
 
-print("population size " + str(len(population)))
+    print("population size " + str(len(population)))
 
-while (generation < 100 or flag):
+    while (generation < MAX_GENERATIONS):
 
-    # Avaliate individuals
-    bestIndividuals = selection(population)
+        # Avaliate individuals
+        bestIndividuals = selection(population)
 
-    newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
+        # print("Best individual: " + str(len(bestIndividuals)))
 
-    if (len(bestIndividuals) > 0):
-        # printPopulation(bestIndividuals)
-        print("best individuals size " + str(len(bestIndividuals)))
-    else:
-        print("No individual in best population")
+        newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
 
-    # Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
-    # No método crossover eu gero um lista de novos indivíduos.
-    nextPopulation = crossover(newPopulation)
+        # printPopulation(newPopulation)
 
-    if (len(nextPopulation) > 0):
+        # if (len(bestIndividuals) > 0):
+        #     # printPopulation(bestIndividuals)
+        #     print("best individuals size " + str(len(bestIndividuals)))
+        # else:
+        #     print("No individual in best population")
+
+        # Cruzamentos entre os individuos escolhidos. E no mesmo método faço a mutação do filho gerado
+        # No método crossover eu gero um lista de novos indivíduos.
+        nextPopulation = crossover(newPopulation)
+
         # printPopulation(nextPopulation)
-        print("next population size " + str(len(nextPopulation)))
-    else:
-        print("No individual in next population")
 
-    mutatedPopulation = mutation(nextPopulation)
+        # if (len(nextPopulation) > 0):
+        #     # printPopulation(nextPopulation)
+        #     print("next population size " + str(len(nextPopulation)))
+        # else:
+        #     print("No individual in next population")
 
-    if (len(mutatedPopulation) > 0):
+        mutatedPopulation = mutation(nextPopulation)
+
         # printPopulation(mutatedPopulation)
-        print("mutated population size " + str(len(mutatedPopulation)))
-    else:
-        print("No individual in mutated population")
 
-    bestIndividual = getBestIndividual(mutatedPopulation)
+        # if (len(mutatedPopulation) > 0):
+        #     # printPopulation(mutatedPopulation)
+        #     print("mutated population size " + str(len(mutatedPopulation)))
+        # else:
+        #     print("No individual in mutated population")
 
-    if bestIndividual.fitness > 0.95:
-        # print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))
-        flag = True
-        break
+        bestIndividual = getBestIndividual(mutatedPopulation)
 
-    # Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
-    generation += 1
-    population = mutatedPopulation
+        print("\n\nGeneration: " + str(generation + 1))
+        printPopulation(mutatedPopulation)
 
-print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
-    bestIndividual.fitness))
+        if bestIndividual.fitness > 0.95:
+            # print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(bestIndividual.fitness))
+            break
+
+        # Faço a avaliação do novo indivíduo e se valer a pena adiciono ele na população.
+
+        generation += 1
+        population = mutatedPopulation
+
+    print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
+        bestIndividual.fitness))
+
+
+geneticAlgorithm()

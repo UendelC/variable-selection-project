@@ -21,11 +21,11 @@ class Chromosome:
         self.chromosome_size = chromosome_size
         self.chromosome = []
         self.generate_chromosome()
-        self.generate_fitness()
         self.fitness = 0
         self.numberVariables = None
         self.y_test = None
         self.y_predict = None
+        self.generate_fitness()
 
     def generate_chromosome(self):
         for i in range(self.chromosome_size):
@@ -34,7 +34,6 @@ class Chromosome:
     def generate_fitness(self):
         true_indexes_list = [index for index, state in enumerate(self.chromosome) if state == 1]
         self.fitness, self.y_test, self.y_predict = getFitness(true_indexes_list)
-        print(self.fitness)
         self.numberVariables = len(true_indexes_list)
 
     def get_chromosome(self):

@@ -4,11 +4,17 @@ import random
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score
+from matplotlib import pyplot
+
 
 def get_data(file_name):
     return pd.read_csv(file_name)
 
+
 data = get_data('data/AG.csv')
+x_data = data.iloc[:, :-1]
+y_data = data.iloc[:, -1]
+
 
 class Chromosome:
     def __init__(self, chromosome_size):
@@ -16,6 +22,10 @@ class Chromosome:
         self.chromosome = []
         self.generate_chromosome()
         self.generate_fitness()
+        self.fitness = 0
+        self.numberVariables = None
+        self.y_test = None
+        self.y_predict = None
 
     def generate_chromosome(self):
         for i in range(self.chromosome_size):
@@ -23,7 +33,8 @@ class Chromosome:
 
     def generate_fitness(self):
         true_indexes_list = [index for index, state in enumerate(self.chromosome) if state == 1]
-        self.fitness = getFitness(true_indexes_list)
+        self.fitness, self.y_test, self.y_predict = getFitness(true_indexes_list)
+        print(self.fitness)
         self.numberVariables = len(true_indexes_list)
 
     def get_chromosome(self):
@@ -100,6 +111,7 @@ def getBestIndividual(population):
 
     return best
 
+
 def knnFit(x_train, y_train):
     knn = KNeighborsRegressor(n_neighbors=3)
     knn = knn.fit(x_train, y_train.values.ravel())
@@ -108,17 +120,12 @@ def knnFit(x_train, y_train):
 
 
 def getFitness(chromosome):
-    x_data = data.iloc[:, :-1]
-    y_data = data.iloc[:, -1]
-
     df = x_data.iloc[:, chromosome]
     x_train, x_test, y_train, y_test = train_test_split(df, y_data, test_size=0.3, random_state=42)
-
     knn = knnFit(x_train, y_train)
-
     y_predict = knn.predict(x_test)
 
-    return r2_score(y_test, y_predict)
+    return r2_score(y_test, y_predict), y_test, y_predict
 
 
 def printPopulation(population):
@@ -128,6 +135,12 @@ def printPopulation(population):
 
     print("===============================================")
 
+def plotScatterGraphic(bestIndividual):
+    pyplot.scatter(bestIndividual.y_test, bestIndividual.y_predict)
+    pyplot.title("Gráfico de Dispersão entre Y Test e Y Predict")
+    pyplot.xlabel("Y Test")
+    pyplot.ylabel("Y Predict")
+    pyplot.show()
 
 # ---------------------------- Genetic Algorithm ------------------------------------#
 def geneticAlgorithm():
@@ -163,11 +176,11 @@ def geneticAlgorithm():
         bestIndividual = getBestIndividual(mutatedPopulation)
 
         print("\n\nGeneration: " + str(generation) + "\nbest individual: "
-            + str(bestIndividual.get_chromosome())
-            + "\nfitness: "
-            + str(bestIndividual.fitness)
-            + "\nNumber of variables: " + str(bestIndividual.numberVariables)
-        )
+              + str(bestIndividual.get_chromosome())
+              + "\nfitness: "
+              + str(bestIndividual.fitness)
+              + "\nNumber of variables: " + str(bestIndividual.numberVariables)
+              )
 
         population = mutatedPopulation
 
@@ -176,10 +189,11 @@ def geneticAlgorithm():
 
         generation += 1
 
-
     print("\n=================== END =====================\n")
     print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
         bestIndividual.fitness))
+
+    plotScatterGraphic(bestIndividual)
 
 
 geneticAlgorithm()

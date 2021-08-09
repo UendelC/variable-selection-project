@@ -62,31 +62,85 @@ def selection(population):
     return population[:int(len(population) * 0.5)]
 
 
-def crossover(population):
+# def crossover(population):
+#     new_population = []
+#     random.shuffle(population)
+#     for i in range(0, len(population) - 1, 2):
+#         chromosome1 = population[i]
+#         chromo1_len = len(chromosome1.get_chromosome())
+#         chromosome2 = population[i + 1]
+#         new_chromosome = []
+#         new_chromosome2 = []
+#
+#         for i in range(chromo1_len):
+#             if randint(0, 1):
+#                 new_chromosome.append(chromosome1.get_chromosome()[i])
+#                 new_chromosome2.append(chromosome2.get_chromosome()[i])
+#             else:
+#                 new_chromosome.append(chromosome2.get_chromosome()[i])
+#                 new_chromosome2.append(chromosome1.get_chromosome()[i])
+#
+#         new_population.append(Chromosome(len(new_chromosome)))
+#         new_population[-1].chromosome = new_chromosome
+#         new_population[-1].generate_fitness()
+#
+#         new_population.append(Chromosome(len(new_chromosome2)))
+#         new_population[-1].chromosome = new_chromosome2
+#         new_population[-1].generate_fitness()
+#
+#     return new_population
+
+def crossover(best_individuals):
     new_population = []
-    random.shuffle(population)
-    for i in range(0, len(population) - 1, 2):
-        chromosome1 = population[i]
-        chromo1_len = len(chromosome1.get_chromosome())
-        chromosome2 = population[i + 1]
-        new_chromosome = []
-        new_chromosome2 = []
+    best_individuals_len = len(best_individuals)
 
-        for i in range(chromo1_len):
-            if randint(0, 1):
-                new_chromosome.append(chromosome1.get_chromosome()[i])
-                new_chromosome2.append(chromosome2.get_chromosome()[i])
-            else:
-                new_chromosome.append(chromosome2.get_chromosome()[i])
-                new_chromosome2.append(chromosome1.get_chromosome()[i])
+    random.shuffle(best_individuals)
 
-        new_population.append(Chromosome(len(new_chromosome)))
-        new_population[-1].chromosome = new_chromosome
-        new_population[-1].generate_fitness()
+    # one point crossover
+    it = 0
+    slice_point_1 = 34
+    while it < best_individuals_len:
+        chromosome_1 = best_individuals[it].get_chromosome()
+        chromosome_2 = best_individuals[it + 1].get_chromosome()
 
-        new_population.append(Chromosome(len(new_chromosome2)))
-        new_population[-1].chromosome = new_chromosome2
-        new_population[-1].generate_fitness()
+        new_chromosome_1 = Chromosome(40)
+        new_chromosome_2 = Chromosome(40)
+
+        new_chromosome_1.chromosome = chromosome_1[0:slice_point_1] + chromosome_2[slice_point_1:40]
+        new_chromosome_1.generate_fitness()
+        new_chromosome_2.chromosome = chromosome_2[0:slice_point_1] + chromosome_1[slice_point_1:40]
+        new_chromosome_2.generate_fitness()
+
+        new_population.append(new_chromosome_1)
+        new_population.append(new_chromosome_2)
+
+        it += 2
+
+    it = 0
+
+    # two points crossover
+    slice_point_1 = 16
+    slice_point_2 = 25
+    while it < best_individuals_len:
+        chromosome_1 = best_individuals[it].get_chromosome()
+        chromosome_2 = best_individuals[it + 1].get_chromosome()
+
+        new_chromosome_1 = Chromosome(40)
+        new_chromosome_2 = Chromosome(40)
+
+        new_chromosome_1.chromosome = chromosome_1[0:slice_point_1] + chromosome_2[
+                                                                      slice_point_1:slice_point_2] + chromosome_1[
+                                                                                                     slice_point_2:40]
+        new_chromosome_1.generate_fitness()
+        new_chromosome_2.chromosome = chromosome_2[0:slice_point_1] + chromosome_1[
+                                                                      slice_point_1:slice_point_2] + chromosome_2[
+                                                                                                     slice_point_2:40]
+        new_chromosome_2.generate_fitness()
+
+        new_population.append(new_chromosome_1)
+        new_population.append(new_chromosome_2)
+
+        it += 2
 
     return new_population
 
@@ -134,6 +188,7 @@ def printPopulation(population):
 
     print("===============================================")
 
+
 def plotScatterGraphic(bestIndividual):
     pyplot.scatter(bestIndividual.y_test, bestIndividual.y_predict)
     pyplot.title("Gráfico de Dispersão entre Y Test e Y Predict")
@@ -141,11 +196,11 @@ def plotScatterGraphic(bestIndividual):
     pyplot.ylabel("Y Predict")
     pyplot.show()
 
+
 # ---------------------------- Genetic Algorithm ------------------------------------#
 def geneticAlgorithm():
     POPULATION_SIZE = 20
     CHROMOSOME_SIZE = 40
-    MAX_GENERATIONS = 100
 
     population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
 
@@ -160,11 +215,12 @@ def geneticAlgorithm():
 
         # print("Best individuals size: " + str(len(bestIndividuals)))
 
-        newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
+        # newPopulation = generatePopulation(POPULATION_SIZE // 2, CHROMOSOME_SIZE) + bestIndividuals
 
         # print("New POpulation size: " + str(len(newPopulation)))
 
-        nextPopulation = crossover(newPopulation)
+        # nextPopulation = crossover(newPopulation)
+        nextPopulation = crossover(bestIndividuals)
 
         # print("Next population size: " + str(len(nextPopulation)))
 

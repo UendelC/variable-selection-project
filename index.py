@@ -58,8 +58,10 @@ def getMeanFitness(population):
 
 def selection(population):
     population.sort(key=lambda x: x.fitness, reverse=True)
+    better_individuals = int(len(population) * 0.5)
+    better_individuals = (better_individuals - 1) if (better_individuals % 2) else better_individuals
 
-    return population[:int(len(population) * 0.5)]
+    return population[:better_individuals]
 
 
 def crossover(best_individuals):
@@ -179,16 +181,26 @@ def geneticAlgorithm():
     CHROMOSOME_SIZE = 40
 
     population = generatePopulation(POPULATION_SIZE, CHROMOSOME_SIZE)
-
     generation = 1
+    result_repetition = 0
+    individual_converged = None
 
     print("population size " + str(len(population)))
 
-    while (True):
+    while (result_repetition < 10):
         # Avaliate individuals
         bestIndividuals = selection(population)
 
         bestIndividual = getBestIndividual(bestIndividuals)
+
+        if individual_converged and individual_converged.fitness == bestIndividual.fitness:
+            result_repetition += 1
+            if individual_converged.numberVariables > bestIndividual.numberVariables:
+                individual_converged = bestIndividual
+
+        if individual_converged == None or individual_converged.fitness < bestIndividual.fitness:
+            individual_converged = bestIndividual
+            result_repetition = 0
 
         print("\n\nGeneration: " + str(generation) + "\nbest individual: "
               + str(bestIndividual.get_chromosome())
@@ -197,37 +209,34 @@ def geneticAlgorithm():
               + "\nNumber of variables: " + str(bestIndividual.numberVariables)
               )
 
-        if bestIndividual.fitness > 0.95:
-            break
+        # if bestIndividual.fitness > 0.99:
+        #     break
 
-        # nextPopulation = crossover(newPopulation)
         nextPopulation = crossover(bestIndividuals)
-
-        # print("Next population size: " + str(len(nextPopulation)))
 
         population = mutation(nextPopulation)
 
         generation += 1
 
     print("\n=================== END =====================\n")
-    print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
-        bestIndividual.fitness))
+    print("Generation: " + str(generation) + " \nChromosome: " + str(individual_converged.get_chromosome()) +
+          "\nFitness: " + str(individual_converged.fitness) + "\nNumber of Variables: " + str(individual_converged.numberVariables))
 
     original_sample_y_test, original_sample_y_predict = getYOriginalSample()
 
-    plotScatterGraphic(original_sample_y_test,
-                       original_sample_y_predict,
-                       "Gráfico de Dispersão entre Y Test e Y Predict conjunto inicial",
-                       "Y Test",
-                       "Y Predict"
-                       )
-
-    plotScatterGraphic(bestIndividual.y_test,
-                       bestIndividual.y_predict,
-                       "Gráfico de Dispersão entre Y Test e Y Predict",
-                       "Y Test",
-                       "Y Predict"
-                       )
+    # plotScatterGraphic(original_sample_y_test,
+    #                    original_sample_y_predict,
+    #                    "Gráfico de Dispersão entre Y Test e Y Predict conjunto inicial",
+    #                    "Y Test",
+    #                    "Y Predict"
+    #                    )
+    #
+    # plotScatterGraphic(individual_converged.y_test,
+    #                    individual_converged.y_predict,
+    #                    "Gráfico de Dispersão entre Y Test e Y Predict",
+    #                    "Y Test",
+    #                    "Y Predict"
+    #                    )
 
 
 geneticAlgorithm()

@@ -149,6 +149,14 @@ def getFitness(chromosome):
     return r2_score(y_test, y_predict), y_test, y_predict
 
 
+def getYOriginalSample():
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.3, random_state=42)
+    knn = knnFit(x_train, y_train)
+    y_predict = knn.predict(x_test)
+
+    return y_test, y_predict
+
+
 def printPopulation(population):
     print("\nPopulation: \n====================================")
     for individual in population:
@@ -157,11 +165,11 @@ def printPopulation(population):
     print("===============================================")
 
 
-def plotScatterGraphic(bestIndividual):
-    pyplot.scatter(bestIndividual.y_test, bestIndividual.y_predict)
-    pyplot.title("Gráfico de Dispersão entre Y Test e Y Predict")
-    pyplot.xlabel("Y Test")
-    pyplot.ylabel("Y Predict")
+def plotScatterGraphic(y_test, y_predict, title, x_label, y_label):
+    pyplot.scatter(y_test, y_predict)
+    pyplot.title(title)
+    pyplot.xlabel(x_label)
+    pyplot.ylabel(y_label)
     pyplot.show()
 
 
@@ -205,7 +213,21 @@ def geneticAlgorithm():
     print("Generation: " + str(generation) + " | " + str(bestIndividual.get_chromosome()) + " | " + str(
         bestIndividual.fitness))
 
-    plotScatterGraphic(bestIndividual)
+    original_sample_y_test, original_sample_y_predict = getYOriginalSample()
+
+    plotScatterGraphic(original_sample_y_test,
+                       original_sample_y_predict,
+                       "Gráfico de Dispersão entre Y Test e Y Predict conjunto inicial",
+                       "Y Test",
+                       "Y Predict"
+                       )
+
+    plotScatterGraphic(bestIndividual.y_test,
+                       bestIndividual.y_predict,
+                       "Gráfico de Dispersão entre Y Test e Y Predict",
+                       "Y Test",
+                       "Y Predict"
+                       )
 
 
 geneticAlgorithm()

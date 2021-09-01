@@ -52,13 +52,18 @@ with open('data/transact_train.csv', 'w', encoding='UTF8', newline='') as f:
         startWeekday    = random.randint(1, 7)
         duration        = 0
         customerId      = random.choice( [ '?', ''.join( random.choices( 'abcdefghijklmnopqrstuvwxyz', k=10 ) ) ] )
-        maxVal          = random.choice( [ '?', random.randint(1, 30000) ] )
-        customerScore   = random.choice( [ '?', random.randint(0, 100) ] )
-        accountLifetime = random.choice( [ '?', random.randint(0, 120) ] )
-        payments        = random.choice( [ '?', random.randint(0, 120) ] )
-        age             = random.choice( [ '?', random.randint(16, 89) ] )
-        address         = random.choice( [ '?', random.randint(1, 3) ] )
-        lastOrder       = random.choice( [ '?', random.randint( 0, accountLifetime*30 ) ] ) if type( accountLifetime ) == int else random.choice( [ '?', random.randint( 0, 3650 ) ] )
+        
+        if customerId == '?':
+            maxVal = customerScore = accountLifetime = payments = age = address = lastOrder = '?'
+        else:
+            maxVal          = random.choice( [ '?', random.randint(1, 30000) ] )
+            customerScore   = random.choice( [ '?', random.randint(0, 100) ] )
+            accountLifetime = random.choice( [ '?', random.randint(0, 120) ] )
+            payments        = random.choice( [ '?', random.randint(0, 120) ] )
+            age             = random.choice( [ '?', random.randint(16, 89) ] )
+            address         = random.choice( [ '?', random.randint(1, 3) ] )
+            lastOrder       = random.choice( [ '?', random.randint( 0, accountLifetime*30 ) ] )
+        
         order           = random.choice( [ 'y', 'n' ] )
 
         transactions = random.randint(1, 10)

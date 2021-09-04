@@ -127,7 +127,7 @@ TST_X ['wasLogged'] = TRN_Original.groupby('sessionNo')['customerId'].apply(lamb
 TRN_X ['wasLogged'] = TRN_Original.groupby('sessionNo')['customerId'].apply(lambda x: (set(x)) != '?')
 
 # --------- Definindo lastOrder_accountLifetime ---------
-#TST_X ['lastOrder_accountLifetime'] = TST_Original.groupby('sessionNo')['lastOrder'].agg({lambda x: x.mean(skipna=False)}) / TST_Original.groupby('sessionNo')['accountLifetime'].mean()
-#TRN_X ['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrder'].mean(skipna=True) / TRN_Original.groupby('sessionNo')['accountLifetime'].mean()
+TST_X ['lastOrder_accountLifetime'] = TST_Original.groupby('sessionNo')['lastOrder'].max() / TST_Original.groupby('sessionNo')['accountLifetime'].max()
+TRN_X ['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrder'].max() / TRN_Original.groupby('sessionNo')['accountLifetime'].max()
 
-#print(TST_Original.replace(np.nan, np.inf).groupby('sessionNo')['lastOrder'].mean().replace(np.inf, np.nan))
+print(TRN_X ['lastOrder_accountLifetime'])

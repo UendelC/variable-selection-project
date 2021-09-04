@@ -11,6 +11,60 @@ TST_Original = pd.read_csv("data/transact_class.csv")
 sessionIDs_TRN = TRN_Original ['sessionNo']
 sessionIDs_TST = TST_Original ['sessionNo']
 
+
+# Normalização das variáveis
+
+# São criadas duas funções para auxiliar esse processo
+
+#Função que calcula o mínimo e máximo de cada variável
+def get_Min_Max(X):
+    '''
+    Input: 
+        X - Data frame
+    Output:
+        result - Um dicionário onde a chave é o nome da coluna de X e o valor é uma tupla (Min, Max)
+    '''
+    result = {}
+    for v in X.columns:
+        result[v] = (np.min(X[v]), np.max(X[v]))
+    return result
+
+#Função que normaliza os dados entre zero e um usando a fórmula (valor_atual - min) / (max - min)
+def normalize(X, MinMax):
+    '''
+    Input: 
+        X - Data frame
+        MinMax -  Um dicionário contendo o mínimo e máximo de uma variável. Ele ser um parâmetro permite que seja 
+                   aplicado em conjuntos diferentes
+    Output:
+        result - Um Data frame normalizado
+    '''
+    result = X.copy()
+
+    for v in MinMax:
+        
+        min_v, max_v = MinMax[v] 
+         
+        div = max_v - min_v
+        
+        if div == 0:
+            div = 1
+        
+        result[v] = (X[v] - min_v) / div        
+        
+        # Correção para aplicação em conjuntos de testes com valores diferentes do conjunto de treinamento
+        
+        # valores menores que zero são setados para zero
+        idx_0 = result[v]<0
+        result.loc[idx_0, v] = 0
+        
+        # valores maiores que um são setados para um
+        idx_1 = result[v]>1
+        result.loc[idx_1, v] = 1
+        
+    return result
+
+
 # Apoio ao tratamento de missing values
 
 l_varNumeric = ['cMinPrice', 'cMaxPrice', 'cSumPrice', 'bMinPrice', 'bMaxPrice', 'bSumPrice', 'bStep', 'maxVal', 'customerScore', 'accountLifetime', 'payments', 'age', 'address', 'lastOrder']
@@ -130,4 +184,30 @@ TRN_X ['wasLogged'] = TRN_Original.groupby('sessionNo')['customerId'].apply(lamb
 TST_X ['lastOrder_accountLifetime'] = TST_Original.groupby('sessionNo')['lastOrder'].max() / TST_Original.groupby('sessionNo')['accountLifetime'].max()
 TRN_X ['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrder'].max() / TRN_Original.groupby('sessionNo')['accountLifetime'].max()
 
-print(TRN_X ['lastOrder_accountLifetime'])
+# --------- Definindo onlineTime ---------
+#TRN_Original_copy = TRN_Original
+#TRN_Original_copy.loc[TRN_Original_copy['onlineStatus'] != 'y', 'duration'] = 0
+#print(TRN_Original_copy.groupby('sessionNo')['duration'].sum())
+#print(TRN_Original_copy.groupby('sessionNo')['onlineStatus'].agg({lambda x: TRN_Original_copy.loc[x.index, 'duration'][x == 'y']}))
+#print(TRN_Original_copy.groupby('sessionNo')['duration'].diff())
+
+# --------- Transformação ---------
+TRN_X = pd.get_dummies(TRN_X, prefix_sep ='_')
+TST_X = pd.get_dummies(TST_X, prefix_sep ='_')
+
+norm_min_max = get_Min_Max( TRN_X )
+TRN_X = normalize(TRN_X, norm_min_max )
+TST_X = normalize(TST_X, norm_min_max )
+
+threshold_var = 0
+
+l_var = [x for x in TRN_X . columns if TRN_X [x].var () <= threshold_var ]
+
+for v in l_var :
+    TRN_X = TRN_X . drop ([v], axis = 1)
+    TST_X = TST_X . drop ([v], axis = 1)
+
+TRN_X . to_csv ('TRN_X.csv ', index = False )
+TRN_Y . to_csv ('TRN_Y.csv ', index = False )
+TST_X . to_csv ('TST_X.csv ', index = False )
+TST_Y . to_csv ('TST_Y.csv ', index = False )

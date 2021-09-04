@@ -1,0 +1,11 @@
+,sessionNo,startHour,startWeekday,duration,cCount,cMinPrice,cMaxPrice,cSumPrice,bCount,bMinPrice,bMaxPrice,bSumPrice,bStep,onlineStatus,availability,customerId,maxVal,customerScore,accountLifetime,payments,age,address,lastOrder
+1,0,7,6,3158.17,10,?,?,925.70,0,0,0,0,3,y,completely orderable,?,?,?,?,?,?,?,?
+2,1,6,2,57.84,2,31.28,?,?,1,61.60,?,246.83,?,y,mainly orderable,?,?,?,?,?,?,?,?
+10,2,13,6,5277.82,1,?,?,225.18,3,?,62.67,?,5,?,?,uypteswair,8569,92,93,59,?,2,564
+16,3,8,6,6226.37,7,?,?,998.60,2,71.28,?,291.03,4,y,?,?,?,?,?,?,?,?,?
+20,4,6,6,3181.14,8,129.74,?,?,9,27.12,142.99,661.80,2,n,completely not orderable,lricgzkute,8868,?,?,?,?,3,?
+26,5,11,5,5712.03,4,110.30,?,?,7,?,13.58,?,1,y,completely not orderable,jpxytlteen,?,61,90,19,?,2,2415
+35,6,18,3,10608.71,7,84.31,70.04,?,3,88.67,?,?,4,?,mainly orderable,?,?,?,?,?,?,?,?
+43,7,14,4,6005.53,8,?,127.55,?,0,0,0,0,3,y,completely not orderable,?,?,?,?,?,?,?,?
+46,8,10,7,3686.1,8,?,?,788.77,3,137.64,?,281.49,1,n,completely orderable,?,?,?,?,?,?,?,?
+54,9,9,2,8121.68,10,84.96,133.43,?,7,69.08,37.84,691.39,?,?,completely orderable,naexpoqvib,17425,?,87,31,?,?,1093

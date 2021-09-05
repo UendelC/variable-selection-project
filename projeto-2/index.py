@@ -2,13 +2,37 @@ import csv
 import random
 import pandas as pd
 
-header = [ 'sessionNo', 'startHour', 'startWeekday', 'duration', 'cCount', 'cMinPrice', 'cMaxPrice', 'cSumPrice', 'bCount', 'bMinPrice', 'bMaxPrice', 'bSumPrice', 'bStep', 'onlineStatus', 'availability', 'customerId', 'maxVal', 'customerScore', 'accountLifetime', 'payments', 'age', 'address', 'lastOrder', 'order' ]
+header = [
+    'sessionNo',
+    'startHour',
+    'startWeekday',
+    'duration',
+    'cCount',
+    'cMinPrice',
+    'cMaxPrice',
+    'cSumPrice',
+    'bCount',
+    'bMinPrice',
+    'bMaxPrice',
+    'bSumPrice',
+    'bStep',
+    'onlineStatus',
+    'availability',
+    'customerId',
+    'maxVal',
+    'customerScore',
+    'accountLifetime',
+    'payments',
+    'age',
+    'address',
+    'lastOrder',
+    'order',
+]
 
 # Ações do usuário que encerram uma transação: clicar em um produto, adicionar produto à cesta, remover produto da cesta
 # Colunas diretamente afetadas por essas ações: cCount, bCount
 
 def sumCalc( minPrice, maxPrice, productCount):
-
     if type(minPrice) == str:
         minPrice = 0
 
@@ -17,7 +41,6 @@ def sumCalc( minPrice, maxPrice, productCount):
 
     if minPrice == maxPrice:
                 sumPrice = minPrice*productCount
-
     else:
         sumPrice = maxPrice + minPrice
 
@@ -30,9 +53,9 @@ def sumCalc( minPrice, maxPrice, productCount):
     return sumPrice
 
 def randomWithMissing( minValue, maxValue ):
-
     if type(minValue) == str:
         minValue = 0
+
     if type(maxValue) == str:
         maxValue = 150
 
@@ -53,7 +76,7 @@ def baseGenerator( baseName ):
             startWeekday    = random.randint(1, 7)
             duration        = 0
             customerId      = random.choice( [ '?', ''.join( random.choices( 'abcdefghijklmnopqrstuvwxyz', k=10 ) ) ] )
-            
+
             if customerId == '?':
                 customerIdinSession = 'null'
                 maxVal = customerScore = accountLifetime = payments = age = address = lastOrder = '?'
@@ -65,15 +88,15 @@ def baseGenerator( baseName ):
                 age             = random.choice( [ '?', random.randint(16, 89) ] )
                 address         = random.choice( [ '?', random.randint(1, 3) ] )
                 lastOrder       = '?' if type( accountLifetime ) == str else random.choice( [ '?', random.randint( 0, accountLifetime * 30 ) ] )
-                
+
                 customerIdinSession      = customerId
                 maxValinSession          = maxVal
                 customerScoreinSession   = customerScore
                 accountLifetimeinSession = accountLifetime
                 paymentsinSession        = payments
                 ageinSession             = age
-                addressinSession         = address  
-                lastOrderinSession       = lastOrder 
+                addressinSession         = address
+                lastOrderinSession       = lastOrder
 
             order           = random.choice( [ 'y', 'n' ] )
 
@@ -82,7 +105,6 @@ def baseGenerator( baseName ):
             # Define as transações que ocorrem na sessão
             for transaction in range(0, transactions):
                 if customerId == '?' and customerIdinSession == 'null':
-                    
                     customerId = random.choice( [ '?', ''.join( random.choices( 'abcdefghijklmnopqrstuvwxyz', k=10 ) ) ] )
 
                     if customerId != '?':
@@ -93,14 +115,14 @@ def baseGenerator( baseName ):
                         age             = random.choice( [ '?', random.randint(16, 89) ] )
                         address         = random.choice( [ '?', random.randint(1, 3) ] )
                         lastOrder       = '?' if type( accountLifetime ) == str else random.choice( [ '?', random.randint( 0, accountLifetime * 30 ) ] )
-                        
+
                         customerIdinSession      = customerId
                         maxValinSession          = maxVal
                         customerScoreinSession   = customerScore
                         accountLifetimeinSession = accountLifetime
                         paymentsinSession        = payments
                         ageinSession             = age
-                        addressinSession         = address  
+                        addressinSession         = address
                         lastOrderinSession       = lastOrder
 
                 elif customerId != '?':
@@ -130,21 +152,20 @@ def baseGenerator( baseName ):
                 bSumPrice    = 0 if bCount == 0 else sumCalc( bMinPrice, bMaxPrice, bCount )
                 bStep        = random.choice( [ 1, 2, 3, 4, 5, '?' ] )
                 onlineStatus = random.choice( [ 'y', 'n', '?' ] )
-                availability = random.choice( [ 'completely orderable', 'completely not orderable', 'mainly orderable', '?' ] ) 
-                
+                availability = random.choice( [ 'completely orderable', 'completely not orderable', 'mainly orderable', '?' ] )
 
-                data = [ 
-                    sessionNo, 
-                    startHour, 
-                    startWeekday, 
-                    format( duration, ".2f" ), 
-                    cCount, 
-                    cMinPrice, 
-                    cMaxPrice, 
-                    cSumPrice, 
-                    bCount, 
-                    bMinPrice, 
-                    bMaxPrice, 
+                data = [
+                    sessionNo,
+                    startHour,
+                    startWeekday,
+                    format( duration, ".2f" ),
+                    cCount,
+                    cMinPrice,
+                    cMaxPrice,
+                    cSumPrice,
+                    bCount,
+                    bMinPrice,
+                    bMaxPrice,
                     bSumPrice,
                     bStep,
                     onlineStatus,
@@ -158,7 +179,7 @@ def baseGenerator( baseName ):
                     address,
                     lastOrder,
                     order
-                    ]
+                ]
 
                 writer.writerow(data)
 

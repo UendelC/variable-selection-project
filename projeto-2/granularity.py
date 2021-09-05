@@ -191,6 +191,10 @@ TRN_X ['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrd
 #print(TRN_Original_copy.groupby('sessionNo')['onlineStatus'].agg({lambda x: TRN_Original_copy.loc[x.index, 'duration'][x == 'y']}))
 #print(TRN_Original_copy.groupby('sessionNo')['duration'].diff())
 
+# --------- Definindo bCount_cCount ---------
+TST_X ['bCount_cCount'] = TST_Original.groupby('sessionNo')['bCount'].sum() / TST_Original.groupby('sessionNo')['cCount'].sum()
+TRN_X ['bCount_cCount'] = TRN_Original.groupby('sessionNo')['bCount'].sum() / TRN_Original.groupby('sessionNo')['cCount'].sum()
+
 # --------- Transformação ---------
 TRN_X = pd.get_dummies(TRN_X, prefix_sep ='_')
 TST_X = pd.get_dummies(TST_X, prefix_sep ='_')

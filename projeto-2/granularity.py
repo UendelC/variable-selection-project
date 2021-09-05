@@ -202,7 +202,37 @@ TST_X['lastOrder_accountLifetime'] = TST_Original.groupby('sessionNo')['lastOrde
 TRN_X['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrder'].max() / \
                                      TRN_Original.groupby('sessionNo')['accountLifetime'].max()
 
+
 # --------- Definindo onlineTime ---------
+def calcOnlineTime(df):
+    df_grouped_by_sessionno = df.groupby('sessionNo')
+    rows_it = 0
+    online_time = []
+
+    for index, row in df_grouped_by_sessionno:
+        rows_len = len(row['duration'])
+        duration_sum = 0
+        changed_id = True
+
+        for it in range(rows_it, rows_len + rows_it):
+            if row['onlineStatus'][it] == 'y':
+                duration_sum += (row['duration'][it] - row['duration'][it - 1]) if not changed_id else row['duration'][
+                    it]
+
+            if changed_id:
+                changed_id = False
+
+            rows_it += 1
+
+        online_time.append(duration_sum)
+
+    return online_time
+
+
+TST_X['onlineTime'] = calcOnlineTime(TST_Original)
+TRN_X['onlineTime'] = calcOnlineTime(TRN_Original)
+
+
 # TRN_Original_copy = TRN_Original
 # TRN_Original_copy.loc[TRN_Original_copy['onlineStatus'] != 'y', 'duration'] = 0
 # print(TRN_Original_copy.groupby('sessionNo')['duration'].sum())
@@ -214,29 +244,29 @@ TRN_X['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrde
 
 # print(TRN_Original_copy.groupby('sessionNo')['duration'].diff())
 
-TRN_Grouped_by_sessionNo = TRN_Original.groupby('sessionNo')
-duration_sum = 0
-index = 1
-rows_it = 0
-
-TRN_X['onlineTime'] = random.randint(0, len(TRN_X))
-
-for index, row in TRN_Grouped_by_sessionNo:
-    rows_len = len(row['duration'])
-    duration_sum = 0
-    changed_id = True
-
-    for it in range(rows_it, rows_len + rows_it):
-        if row['onlineStatus'][it] == 'y':
-            duration_sum += (row['duration'][it] - row['duration'][it - 1]) if not changed_id else row['duration'][it]
-
-        if changed_id:
-            changed_id = False
-
-        rows_it += 1
-
-    TRN_X.loc[index, 'onlineTime'] = duration_sum
-    index += 1
+# TRN_Grouped_by_sessionNo = TRN_Original.groupby('sessionNo')
+# duration_sum = 0
+# index = 1
+# rows_it = 0
+#
+# TRN_X['onlineTime'] = random.randint(0, len(TRN_X))
+#
+# for index, row in TRN_Grouped_by_sessionNo:
+#     rows_len = len(row['duration'])
+#     duration_sum = 0
+#     changed_id = True
+#
+#     for it in range(rows_it, rows_len + rows_it):
+#         if row['onlineStatus'][it] == 'y':
+#             duration_sum += (row['duration'][it] - row['duration'][it - 1]) if not changed_id else row['duration'][it]
+#
+#         if changed_id:
+#             changed_id = False
+#
+#         rows_it += 1
+#
+#     TRN_X.loc[index, 'onlineTime'] = duration_sum
+#     index += 1
 
 # --------- Definindo bCount_cCount ---------
 TST_X['bCount_cCount'] = TST_Original.groupby('sessionNo')['bCount'].sum() / TST_Original.groupby('sessionNo')[

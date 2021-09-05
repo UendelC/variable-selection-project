@@ -5,8 +5,8 @@ import pandas as pd
 
 # Mudando a granularidade
 
-TRN_Original = pd.read_csv("data/transact_train.txt",  sep="|")
-TST_Original = pd.read_csv("data/transact_class.txt",  sep="|")
+TRN_Original = pd.read_csv("data/transact_train.txt", sep="|")
+TST_Original = pd.read_csv("data/transact_class.txt", sep="|")
 
 sessionIDs_TRN = TRN_Original['sessionNo']
 sessionIDs_TST = TST_Original['sessionNo']
@@ -193,8 +193,8 @@ TRN_X['bSumPrice_cSumPrice'] = TRN_Original.groupby('sessionNo')['bSumPrice'].me
                                TRN_Original.groupby('sessionNo')['cSumPrice'].mean()
 
 # --------- Definindo wasLogged ---------
-TST_X['wasLogged'] = TRN_Original.groupby('sessionNo')['customerNo'].apply(lambda x: (set(x)) != '?')
-TRN_X['wasLogged'] = TRN_Original.groupby('sessionNo')['customerNo'].apply(lambda x: (set(x)) != '?')
+# TST_X['wasLogged'] = TRN_Original.groupby('sessionNo')['customerNo'].apply(lambda x: (set(x)) != '?')
+# TRN_X['wasLogged'] = TRN_Original.groupby('sessionNo')['customerNo'].apply(lambda x: (set(x)) != '?')
 
 # --------- Definindo lastOrder_accountLifetime ---------
 TST_X['lastOrder_accountLifetime'] = TST_Original.groupby('sessionNo')['lastOrder'].max() / \
@@ -206,12 +206,43 @@ TRN_X['lastOrder_accountLifetime'] = TRN_Original.groupby('sessionNo')['lastOrde
 # TRN_Original_copy = TRN_Original
 # TRN_Original_copy.loc[TRN_Original_copy['onlineStatus'] != 'y', 'duration'] = 0
 # print(TRN_Original_copy.groupby('sessionNo')['duration'].sum())
-# print(TRN_Original_copy.groupby('sessionNo')['onlineStatus'].agg({lambda x: TRN_Original_copy.loc[x.index, 'duration'][x == 'y']}))
+# print(TRN_Original.groupby('sessionNo')['onlineStatus'].agg({lambda x: TRN_Original.loc[x.index, 'duration'][x == 'y']}))
+
+# print(TRN_Original.groupby('sessionNo').apply({lambda x: x[x['onlineStatus'] == 'y']['duration'].sum()}))
+
+# TRN_Original.groupby('sessionNo').aggregate({lambda x: print(x.values)})
+
 # print(TRN_Original_copy.groupby('sessionNo')['duration'].diff())
 
+TRN_Grouped_by_sessionNo = TRN_Original.groupby('sessionNo')
+duration_sum = 0
+index = 1
+rows_it = 0
+
+TRN_X['onlineTime'] = random.randint(0, len(TRN_X))
+
+for index, row in TRN_Grouped_by_sessionNo:
+    rows_len = len(row['duration'])
+    duration_sum = 0
+    changed_id = True
+
+    for it in range(rows_it, rows_len + rows_it):
+        if row['onlineStatus'][it] == 'y':
+            duration_sum += (row['duration'][it] - row['duration'][it - 1]) if not changed_id else row['duration'][it]
+
+        if changed_id:
+            changed_id = False
+
+        rows_it += 1
+
+    TRN_X.loc[index, 'onlineTime'] = duration_sum
+    index += 1
+
 # --------- Definindo bCount_cCount ---------
-TST_X ['bCount_cCount'] = TST_Original.groupby('sessionNo')['bCount'].sum() / TST_Original.groupby('sessionNo')['cCount'].sum()
-TRN_X ['bCount_cCount'] = TRN_Original.groupby('sessionNo')['bCount'].sum() / TRN_Original.groupby('sessionNo')['cCount'].sum()
+TST_X['bCount_cCount'] = TST_Original.groupby('sessionNo')['bCount'].sum() / TST_Original.groupby('sessionNo')[
+    'cCount'].sum()
+TRN_X['bCount_cCount'] = TRN_Original.groupby('sessionNo')['bCount'].sum() / TRN_Original.groupby('sessionNo')[
+    'cCount'].sum()
 
 # --------- Transformação ---------
 TRN_X = pd.get_dummies(TRN_X, prefix_sep='_')
